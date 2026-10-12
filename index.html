@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>มาง้ออะสุดที่รัก</title>
-  <!-- Google Fonts & Tailwind CSS -->
+  <!-- Google Fonts & Tailwind CSS & html2canvas -->
   <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -104,7 +104,7 @@
     </div>
 
     <!-- Share Button -->
-    <button onclick="shareLink()" class="px-6 py-2.5 bg-white/90 text-pink-600 font-bold rounded-full shadow border border-pink-300 hover:bg-pink-50 text-sm flex items-center gap-2">
+    <button onclick="shareLink()" class="px-6 py-2.5 bg-white/90 text-pink-600 font-bold rounded-full shadow border border-pink-300 hover:bg-pink-50 text-sm flex items-center gap-2 font-mali">
       🔗 แชร์ลิงก์ให้แฟน
     </button>
 
@@ -141,10 +141,54 @@
             </button>
           </div>
           
-          <button id="btn-send-left" onclick="sendLeftEnvelope()" class="hidden w-full mt-2 py-3 bg-green-500 text-white font-bold rounded-xl font-mali shadow hover:bg-green-600 text-lg">
-            🚀 ส่งรูปให้พี่ง้อเลย!
+          <button id="btn-send-left" onclick="showLeftVoucher()" class="hidden w-full mt-2 py-3 bg-green-500 text-white font-bold rounded-xl font-mali shadow hover:bg-green-600 text-lg">
+            ✨ ดูรูปพร้อมกรอบสุดน่ารัก!
           </button>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Left Voucher Ticket & Photo Frame Display -->
+  <div id="modal-left-voucher" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="max-w-md w-full flex flex-col items-center">
+      
+      <!-- Notice Top -->
+      <div class="bg-yellow-300 text-yellow-900 font-bold px-4 py-2 rounded-full mb-3 text-sm shadow-lg font-mali animate-bounce border-2 border-white">
+        🐷 แคปมาให้ดูหน้าหมูหน่อยจิ
+      </div>
+
+      <!-- Photo Card Container (This area will be captured/saved) -->
+      <div id="photo-frame-card" class="bg-gradient-to-br from-pink-400 via-rose-400 to-pink-500 text-white rounded-3xl p-6 shadow-2xl border-4 border-white w-full relative overflow-hidden font-mali text-center">
+        <!-- Cute Background Pattern & Decors -->
+        <div class="absolute top-2 left-3 text-2xl">💖</div>
+        <div class="absolute top-2 right-3 text-2xl">✨</div>
+        <div class="absolute -right-8 -bottom-8 text-white/10 text-8xl font-bold select-none">LOVE</div>
+        
+        <h4 class="text-xl font-bold text-yellow-200 drop-shadow mb-1">จัดส่งค่าใช้จ่ายเรียบร้อยแล้วไอแฟนน่ารัก ❤️</h4>
+        <p class="text-xs text-pink-100 mb-3">อนุมัติงบประมาณจากพี่สุดที่รัก ✔️</p>
+
+        <!-- Cute Framed Photo -->
+        <div class="relative my-2 inline-block">
+          <div class="p-2 bg-white rounded-3xl shadow-xl border-4 border-pink-200 transform -rotate-1">
+            <img id="ticket-user-photo" class="w-48 h-48 object-cover rounded-2xl" alt="รูปแฟนคนสวย">
+          </div>
+          <div class="absolute -top-3 -right-3 text-3xl">🐷</div>
+          <div class="absolute -bottom-2 -left-2 text-2xl">🌸</div>
+        </div>
+
+        <p class="text-sm font-bold text-yellow-300 mt-2">"แคปมาให้ดูหน้าหมูหน่อยจิ 💕"</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3 mt-4 w-full font-mali">
+        <button onclick="downloadPhotoFrame()" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-2xl shadow-lg border-2 border-white hover:bg-green-600 flex items-center justify-center gap-1">
+          💾 บันทึกรูปภาพ
+        </button>
+        <button onclick="shareLink()" class="flex-1 py-3 bg-white text-pink-600 font-bold rounded-2xl shadow-lg border-2 border-pink-300 hover:bg-pink-50 flex items-center justify-center gap-1">
+          🔗 แชร์ลิงก์
+        </button>
       </div>
 
     </div>
@@ -307,20 +351,23 @@
       document.getElementById('btn-send-left').classList.add('hidden');
     }
 
-    function sendLeftEnvelope() {
-      // Send photo and message to formspree pointing to palm.chantha@gmail.com
-      fetch("https://formspree.io/f/xbjnqpyz", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: "palm.chantha@gmail.com",
-          message: "แฟนส่งรูปง้อมาให้แล้ว!",
-          photo: photoData || "ไม่ได้แนบรูป"
-        })
-      }).finally(() => {
-        document.getElementById('modal-left').classList.add('hidden');
-        alert("จัดส่งค่าใช้จ่ายเรียบร้อยแล้วไอแฟนน่ารัก 💕");
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    function showLeftVoucher() {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      document.getElementById('modal-left').classList.add('hidden');
+      document.getElementById('ticket-user-photo').src = photoData;
+      document.getElementById('modal-left-voucher').classList.remove('hidden');
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+
+    function downloadPhotoFrame() {
+      const card = document.getElementById('photo-frame-card');
+      html2canvas(card, { scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'หน้าหมูของพี่ง้อ.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
       });
     }
 
